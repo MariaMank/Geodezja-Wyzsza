@@ -62,11 +62,12 @@ with open('FlightAware.txt') as data:
             A = np.rad2deg(np.arctan(e / n))
             s = math.sqrt(n ** 2 + e ** 2 + u ** 2)
             z = np.rad2deg(np.arccos(u / s))
-            line = row[0]+'\t'+str(*(np.round(n,3)))+'\t'+str(*(np.round(e,3)))+'\t'+str(*(np.round(u,3)))+'\t'+str(*(np.round(A, 6)))+'\t'+str((np.round(s,3)))+'\t'+str(*(np.round(z,6)))+'\n'
+            line = row[0]+'\t'+str(*(np.round(n,3)))+'\t'+str(*(np.round(e,3)))+'\t'+str(*(np.round(u,3)))+'\t'+\
+                   str(*(np.round(A, 6)))+'\t'+str((np.round(s,3)))+'\t'+str(*(np.round(z,6)))+'\n'
             result.write(line)
             if czyzniknal == False and (z >= 90 and u <= 0):
-                print('Samolot zniknął za horyzontem w punkcie o współrzędnych neu: [', *(np.round(n,3)), *(np.round(e,3)), *(np.round(u,3)), '] i kącie zenitalnym: ', *(np.round(z,6)),
-                      '\nI współrzędnych geodezyjnych fi, lamda, h: [', row[1], row[2], row[3], ']')
+                print('Samolot zniknął za horyzontem w punkcie o współrzędnych neu: [', *(np.round(n,3)), *(np.round(e,3)), *(np.round(u,3)), '] i kącie zenitalnym: ',
+                      *(np.round(z,6)),'\nI współrzędnych geodezyjnych fi, lamda, h: [', row[1], row[2], row[3], ']')
                 fig = go.Figure(go.Scattermapbox(
                     mode="markers",
                     lon=[l2],
@@ -89,7 +90,7 @@ fig.add_trace(go.Scattermapbox(
     marker=go.scattermapbox.Marker(
             size=8,
             color='rgb(192, 20, 20)'
-        )))
+    )))
 
 fig.update_layout(
     margin={'autoexpand': False, 'l': 0, 't': 45, 'b': 0, 'r': 0},
@@ -116,8 +117,6 @@ fig.update_layout(
     paper_bgcolor="lightgrey"
 )
 
-# Helix equation
-#t = np.linspace(1000, 20000, 10000)
 
 fig3d = go.Figure(data=[go.Scatter3d(
     x=nt,
@@ -126,14 +125,25 @@ fig3d = go.Figure(data=[go.Scatter3d(
     mode='markers',
     marker=dict(
         size=8,
-        color="red",                # set color to an array/list of desired values   # choose a colorscale
+        color="red",
         opacity=0.8
-    )
+    ),
 )])
 
-# tight layout
-fig3d.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+fig3d.update_layout(margin=dict(l=0, r=0, b=0, t=0),
+                    scene={
+                        "xaxis": {"title": 'n'},
+                        "yaxis": {"title": 'e'},
+                        "zaxis": {"title": 'u'},
+                        'camera_eye': {"x": -1, "y": -2, "z": 1}
+                    },
+                    title={
+                        'font': {'color': 'rgb(0, 0, 0)', 'family': "Arial", 'size': 30},
+                        'x': 0.5,
+                        'y': 0.987,
+                        'text': 'Trasa lotu samolotu TUI3GB Heraklion - Hanover 28.10.2021 we współrzednych neu'
+                    },)
 fig3d.show()
 fig.show()
 
-print("Przeliczone współrzędne neu zostały zapisane do pliku NEUresult.txt")
+print("Przeliczone współrzędne neu wraz z Azymutami, odlełością skośna i kątem zenitalnym zostały zapisane do pliku NEUresult.txt")
