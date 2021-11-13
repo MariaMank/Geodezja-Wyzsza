@@ -82,15 +82,28 @@ with open('FlightAware.txt') as data:
         else:
             line_count += 1
 result.close()
-fig.add_trace(go.Scattermapbox(
-    mode="lines",
-    lon=lg,
-    lat=lt,
-    name='Trasa samolotu',
-    marker=go.scattermapbox.Marker(
-            size=8,
-            color='rgb(192, 20, 20)'
-    )))
+
+if czyzniknal!=True:
+    print("Samolot nie zniknął za horyzontem")
+    fig = go.Figure(go.Scattermapbox(
+        mode="lines",
+        lon=lg,
+        lat=lt,
+        name='Trasa samolotu',
+        marker=go.scattermapbox.Marker(
+                size=8,
+                color='rgb(192, 20, 20)'
+        )))
+else:
+    fig.add_trace(go.Scattermapbox(
+        mode="lines",
+        lon=lg,
+        lat=lt,
+        name='Trasa samolotu',
+        marker=go.scattermapbox.Marker(
+                size=8,
+                color='rgb(192, 20, 20)'
+        )))
 
 fig.update_layout(
     margin={'autoexpand': False, 'l': 0, 't': 45, 'b': 0, 'r': 0},
@@ -145,5 +158,6 @@ fig3d.update_layout(margin=dict(l=0, r=0, b=0, t=0),
                     },)
 fig3d.show()
 fig.show()
+
 
 print("Przeliczone współrzędne neu wraz z Azymutami, odlełością skośna i kątem zenitalnym zostały zapisane do pliku NEUresult.txt")
