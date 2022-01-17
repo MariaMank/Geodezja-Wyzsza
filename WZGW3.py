@@ -29,55 +29,6 @@ fid = 50 + nr*15/60
 lmd = 21 + 15/60
 fis = (fia + fid)/2
 lms = (lma + lmd)/2
-def A(A, g, d): #w poprawnych jednostkach już
-    if g>0:
-        if d<0:
-            A = 180 + A
-        elif d> 0 and A<360 :
-            if A>0:
-                return A
-            if A<0:
-                return A + 360
-    elif g<0:
-        if d>0:
-            A= 360 + A
-        elif d<0:
-            A+=180
-    if A > 360:
-        A-=360
-    elif A < 0:
-        A+=360
-    a = np.deg2rad(A)
-    return a #też w radianach
-
-
-def kivioji(fi, lam, A, s, a, e2):
-    A = np.deg2rad(A)
-    fi  = np.deg2rad(fi)
-    lam = np.deg2rad(lam)
-    n = round(s/1000)
-    ds = s/n
-    for x in range(n):
-        M = (a * (1 - e2)) / math.sqrt((1 - e2 * (math.sin(fi)) ** 2) ** 3)
-        N = a / math.sqrt(1 - e2 * (math.sin(fi) ** 2))
-        dfi = (ds * math.cos(A)) / M
-        dA = ((math.sin(A) * math.tan(fi)) / N) * ds
-        fim = fi + dfi / 2
-        Am = A + dA / 2
-        Mm = (a * (1 - e2)) / (math.sqrt(1 - e2 * (math.sin(fim)) ** 2) ** 3)
-        Nm = a / (math.sqrt(1 - e2 * (math.sin(fim)) ** 2))
-        dfip = (ds * math.cos(Am)) / Mm
-        dlamp = (ds * math.sin(Am)) / (Nm * math.cos(fim))
-        dAp = ((math.sin(Am) * math.tan(fim)) / Nm) * ds
-        fi = fi + dfip
-        lam = lam + dlamp
-        A = A + dAp
-
-    fi_k = fi
-    lam_k = lam
-    A_BA = A + math.pi
-
-    return fi_k, lam_k, A_BA
 
 def Kivioj (a, e2, fi, lm, s,  A): #;)
     fi = np.deg2rad(fi)
@@ -107,7 +58,7 @@ def Kivioj (a, e2, fi, lm, s,  A): #;)
     fi = np.rad2deg(fi)
     lm = np.rad2deg(lm)
     A = np.rad2deg(A+ np.pi) #az
-    return fi, lm, A    #wyniki w radianach, już nie
+    return fi, lm, A
 
 def Vincenty(a, e2, fi, lm, fib, lmb):
     fi = np.deg2rad(fi)
@@ -210,4 +161,3 @@ vin4 = Vincenty(a, e2, fik, lmk, fid, lmd) # Azymut i odleglośc z punktu środk
 ###POLE
 pol =  pole(a, e2, lma, lmd, fia, fid)/1000000
 print("4. pole obszaru wynosi: ", round(pol, 12), '[km^2]')
-
