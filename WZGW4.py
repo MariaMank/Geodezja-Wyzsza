@@ -110,44 +110,39 @@ def gk2el (xk, yk,lm0, a, e2):
     lm = np.rad2deg(lm)
     return fi, lm
 
-def mkappa (x, y, a, e2, u, lmm):
+def mkappa (x, y, a, e2, u, lmm, fi):
     if u == '92':
         m0 = 0.9993
         gk = u922gk(x, y)
-        xk = gk[0]
         yk = gk[1]
-        fl = gk2el(xk, yk,lmm, a, e2)
-        fi = fl[0]
-
         N = Np(fi, a, e2)
         M = Mp(fi, a, e2)
         R = np.sqrt(M*N)
-        m1 = m(yk, R)
-        k = 1 - m1
+        m1 =m(yk, R)*m0
+        m2 = (m(yk, R)**2)*(m0**2)
+        k = (m1 - 1)*1000
+        k2 = (m2 - 1)*10000
     elif u == '00':
         m0 = 0.999923
         gk = u002gk(x, y, 21)
-        xk = gk[0]
         yk = gk[1]
-        fl = gk2el(xk, yk,lmm, a, e2)
-        fi = fl[0]
-        lm = fl[1]
         N = Np(fi, a, e2)
         M = Mp(fi, a, e2)
         R = np.sqrt(M*N)
-        m1 =1 + (yk**2)/(2*(R**2)) + (yk**4)/(24*(R**4))
-        k = 1 - m1
+        m1 =m(yk, R)*m0
+        m2 = (m(yk, R)**2)*(m0**2)
+        k = (m1 - 1)*1000
+        k2 = (m2 - 1)*10000
     elif u == 'None':
-        fl = gk2el(x, y,lmm, a, e2)
-        fi = fl[0]
-        lm = fl[1]
         N = Np(fi, a, e2)
         M = Mp(fi, a, e2)
         R = np.sqrt(M*N)
         m1 = m(y, R)
-        k = 1 - m1
-    return m1, k
-def pole(a, e2, lm1, lm2, fi1, fi2):
+        m2 = m1**2
+        k = (m1 - 1)*1000
+        k2 = (m2 - 1) * 10000
+    return m1, k, m2, k2
+def pole(a, e2, lm1, lm2, fi1, fi2): #pole ze współrzędnych geo
     fi1 = np.deg2rad(fi1)
     lm1 = np.deg2rad(lm1)
     fi2 = np.deg2rad(fi2)
@@ -176,33 +171,39 @@ def wywolywanie():
         pgk2.append([gkkk[0], gkkk[1]])
         u200 = gk2u00(gkk[0], gkk[1], lm0)
         print('2000:', *u200)
-        print('zniekszatłcenia 00:', *mkappa(u200[0], u200[1], a, e2, '00', lm0))
+        print('zniekszatłcenia 00:', *mkappa(u200[0], u200[1], a, e2, '00', lm0, fi))
         p2000.append([u200[0], u200[1]])
         u1992 = gk2u92(gkkk[0], gkkk[1])
         print('1992:', *u1992)
-        print('zniekszatłcenia 92:',*mkappa(u1992[0], u1992[1], a, e2, '92', 19))
+        print('zniekszatłcenia 92:',*mkappa(u1992[0], u1992[1], a, e2, '92', 19, fi))
         p1992.append([u1992[0], u1992[1]])
         u92kk = u922gk(u1992[0], u1992[1])
         print('92 -- > KG', *u92kk)
         u20kk = u002gk(u200[0], u200[1], lm0)
         print('2000 -- > KG', *u20kk)
-        print('zniekszatłcenia gk 00:', *mkappa(u20kk[0], u20kk[1], a, e2, 'None', lm0))
-        print('zniekszatłcenia gk 92:', *mkappa(u92kk[0], u92kk[1], a, e2, 'None', 19))
+        print('zniekszatłcenia gk 00:', *mkappa(u20kk[0], u20kk[1], a, e2, 'None', lm0, fi))
+        print('zniekszatłcenia gk 92:', *mkappa(u92kk[0], u92kk[1], a, e2, 'None', 19, fi))
         gkgeo = gk2el(u92kk[0], u92kk[1], 19, a, e2)
         print('KG 92 -- > geo', *gkgeo)
         gkgeo1 = gk2el(u20kk[0], u20kk[1], lm0, a, e2)
         print('KG 00 -- > geo', *gkgeo1)
         p+=1
+
     pol = pole(a, e2, punktylm[0], punktylm[3], punktyfi[0], punktyfi[3]) / 1000000
     print("pole obszaru wynosi (geo): ", round(pol, 12), '[km^2]')
-    pp92 = shp.Polygon([(p1992[0][0], p1992[0][1]),(p1992[1][0], p1992[1][1]), (p1992[2][0], p1992[2][1]), (p1992[3][0], p1992[3][1])] )
-    print(pp92)
-    pol92 = pp92.area
+    pp92 = shp.Polygon([(p1992[0][0], p1992[0][1]),(p1992[1][0], p1992[1][1]), (p1992[3][0], p1992[3][1]), (p1992[2][0], p1992[2][1])] )
+    pol92 = pp92.area/1000000
     print("pole obszaru wynosi (92): ", round(pol92, 12), '[km^2]')
     pol00 = (np.abs(p2000[3][0]  - p2000[0][0])*np.abs(p2000[0][1]  - p2000[3][1]))/ 1000000
     print("pole obszaru wynosi (00): ", round(pol00, 12), '[km^2]')
-    polgk = (np.abs(pgk0[0][0]  - pgk0[3][0])*np.abs(pgk0[0][1]  - pgk0[3][1]))/ 1000000
+    ppgko = shp.Polygon([(pgk0[0][0], pgk0[0][1]), (pgk0[1][0], pgk0[1][1]), (pgk0[3][0], pgk0[3][1]),
+                         (pgk0[2][0],pgk0[2][1])])
+    polgk = ppgko.area / 1000000
     print("pole obszaru wynosi (gk0): ", round(polgk, 12), '[km^2]')
+    ppgk2 = shp.Polygon([(pgk2[0][0], pgk2[0][1]), (pgk2[1][0], pgk2[1][1]), (pgk2[3][0], pgk2[3][1]),
+                         (pgk2[2][0],pgk2[2][1])])
+    polg2 = ppgk2.area / 1000000
+    print("pole obszaru wynosi (gk2): ", round(polg2, 12), '[km^2]')
     print('GK:',*pgk2)
     print('92:', *p1992)
     print('00:', *p2000)
