@@ -9,6 +9,8 @@ p2000 = []                      #tablice wyników xy, xy itd
 p1992 = []
 pgk2 = []
 pgk0 = []
+mk = []
+m2k2 = []
 def Np(f, a, e2):
     N = a / np.sqrt(1 - e2 * (np.sin(f) ** 2))
     return N
@@ -37,10 +39,11 @@ def geo2GK(fi, lm, lm0): #coś nie tak
     sigma = a*(a0*fi - a2*np.sin(2*fi)+ a4*np.sin(4*fi) - a6*np.sin(6*fi))
     x = sigma + ((l**2)/2)*N*np.sin(fi)*np.cos(fi)*(1+((l**2)/12)*(np.cos(fi)**2)*(5 - t**2 + 9*n2 + 4*(n2)**2) \
         + ((l**4)/360)*(np.cos(fi)**4)*(61 - 58*t**2 + t**4 + 270*n2 - 330*n2*(t**2)))
-    y = l*N*np.cos(fi)*(1+((l**2)/6)*(np.cos(fi)**2)*(1 - t**2+n2) + ((l**4)/120)*(np.cos(fi)**4)*(5 - 18*(t**2) + t**4 + 14*n2 - 58*n2*(t**2)))
+    y = l*N*np.cos(fi)*(1+((l**2)/6)*(np.cos(fi)**2)*(1 - t**2+n2) +
+                        ((l**4)/120)*(np.cos(fi)**4)*(5 - 18*(t**2) + t**4 + 14*n2 - 58*n2*(t**2)))
     return x, y
 
-def gk2u92 (xk, yk): #dobrze
+def gk2u92 (xk, yk):
     m = 0.9993
     x = xk*m - 5300000
     y = yk*m + 500000
@@ -55,7 +58,7 @@ def l(lm):
     elif lm < 13.5 and lm < 16.5:
         lm0 = 15
     return lm0
-def gk2u00 (xk, yk, lm): #dobrze
+def gk2u00 (xk, yk, lm):
     m = 0.999923
     lm0 = l(lm)
     c = lm0/3
@@ -63,14 +66,14 @@ def gk2u00 (xk, yk, lm): #dobrze
     y = m*yk + 500000 + c*1000000
     return x, y
 
-def u922gk (x, y): #dobrze
+def u922gk (x, y):
     m = 0.9993
     xk = (x + 5300000)/m
     yk = (y - 500000)/m
     return xk, yk
 
 
-def u002gk (x, y,lm0): #dobrze
+def u002gk (x, y,lm0):
     m = 0.999923
     c = lm0/3
     xk = x/m
@@ -142,7 +145,8 @@ def mkappa (x, y, a, e2, u, lmm, fi):
         k = (m1 - 1)*1000
         k2 = (m2 - 1) * 10000
     return m1, k, m2, k2
-def pole(a, e2, lm1, lm2, fi1, fi2): #pole ze współrzędnych geo
+
+def pole(a, e2, lm1, lm2, fi1, fi2): #pole ze współrzędnych geo z zad 3
     fi1 = np.deg2rad(fi1)
     lm1 = np.deg2rad(lm1)
     fi2 = np.deg2rad(fi2)
@@ -154,59 +158,67 @@ def pole(a, e2, lm1, lm2, fi1, fi2): #pole ze współrzędnych geo
     p = b**2*(lm2 - lm1)/2*(a1 - a2)
     return p
 
-
 def wywolywanie():
     p = 0
+    print('------------------------------ZESTAWIENIE WSPÓŁRZĘDNYCH---------------------------------')
+    line = 'pkt' + '\t' + 'fi' + '\t\t' + 'lambda' + '\t' + 'X GK00\t\t' + 'Y GK00' + '\t\t' + 'X GK92' + \
+           '\t\t' + 'Y GK92' + '\t\t' + 'X 2000' + '\t\t' + 'Y 2000' + '\t\t' + 'X 1992' + '\t\t' + 'Y 1992'
+    print(line)
     for i in punktyfi:
         fi = i
         lm = punktylm[p]
         lm0 = l(lm)
-        print('----------------------')
-        print('Punkt',p+1,fi, lm)
-        gkk = geo2GK(fi, lm, lm0)       #dla 00  - odpowiedni poludnik osiowy
-        gkkk = geo2GK(fi, lm, 19)       #dla 92 - poludnik osiowy 19
-        print('Gaus 00:', gkk[0], gkk[1])
-        print('Gaus 92:', gkkk[0], gkkk[1])
+        gkk = geo2GK(fi, lm, lm0)       #GK dla 00  - odpowiedni poludnik osiowy
+        gkkk = geo2GK(fi, lm, 19)       #GK dla 92 - poludnik osiowy 19
         pgk0.append([gkk[0], gkk[1]])
         pgk2.append([gkkk[0], gkkk[1]])
-        u200 = gk2u00(gkk[0], gkk[1], lm0)
-        print('2000:', *u200)
-        print('zniekszatłcenia 00:', *mkappa(u200[0], u200[1], a, e2, '00', lm0, fi))
+        u200 = gk2u00(gkk[0], gkk[1], lm0) #GK00 ---> 2000
+        m00 = mkappa(u200[0], u200[1], a, e2, '00', lm0, fi)
         p2000.append([u200[0], u200[1]])
-        u1992 = gk2u92(gkkk[0], gkkk[1])
-        print('1992:', *u1992)
-        print('zniekszatłcenia 92:',*mkappa(u1992[0], u1992[1], a, e2, '92', 19, fi))
+        u1992 = gk2u92(gkkk[0], gkkk[1])   #GK92---> 1992
+        m92 = mkappa(u1992[0], u1992[1], a, e2, '92', 19, fi)
         p1992.append([u1992[0], u1992[1]])
-        u92kk = u922gk(u1992[0], u1992[1])
-        print('92 -- > KG', *u92kk)
-        u20kk = u002gk(u200[0], u200[1], lm0)
-        print('2000 -- > KG', *u20kk)
-        print('zniekszatłcenia gk 00:', *mkappa(u20kk[0], u20kk[1], a, e2, 'None', lm0, fi))
-        print('zniekszatłcenia gk 92:', *mkappa(u92kk[0], u92kk[1], a, e2, 'None', 19, fi))
-        gkgeo = gk2el(u92kk[0], u92kk[1], 19, a, e2)
-        print('KG 92 -- > geo', *gkgeo)
-        gkgeo1 = gk2el(u20kk[0], u20kk[1], lm0, a, e2)
-        print('KG 00 -- > geo', *gkgeo1)
+        u92kk = u922gk(u1992[0], u1992[1]) #92 --->GK92
+        u20kk = u002gk(u200[0], u200[1], lm0) #2000 --->GK00
+        mGK0 = mkappa(u20kk[0], u20kk[1], a, e2, 'None', lm0, fi)
+        mGK2 = mkappa(u92kk[0], u92kk[1], a, e2, 'None', 19, fi)
+        gkgeo = gk2el(u92kk[0], u92kk[1], 19, a, e2) #GK92---> fi lm GRS80
+        gkgeo1 = gk2el(u20kk[0], u20kk[1], lm0, a, e2) #GK00 ---> fi lm GRS80
+        mk.append([mGK0[0],mGK0[1], mGK2[0], mGK2[1], m00[0], m00[1], m92[0], m92[1]])
+        m2k2.append([mGK0[2], mGK0[3], mGK2[2], mGK2[3], m00[2], m00[3], m92[2], m92[3]])
+        line = str(p + 1) + '\t' + str(fi) + '\t' + str(lm) + '\t' + str(round(gkk[0], 3))+'\t'+str(round(gkk[1], 3))+ '\t' \
+               + str(round(gkkk[0], 3))+ '\t'+str(round(gkkk[1], 3)) + '\t' + str(round(u200[0], 3))+ '\t'+str(round(u200[1], 3)) + \
+               '\t'+ str(round(u1992[0], 3))+ '\t'+str(round(u1992[1], 3))
+        print(line)
         p+=1
-
+    print('------------------------------ZESTAWIENIE PÓL POWIERZCHNI---------------------------------')
     pol = pole(a, e2, punktylm[0], punktylm[3], punktyfi[0], punktyfi[3]) / 1000000
-    print("pole obszaru wynosi (geo): ", round(pol, 12), '[km^2]')
     pp92 = shp.Polygon([(p1992[0][0], p1992[0][1]),(p1992[1][0], p1992[1][1]), (p1992[3][0], p1992[3][1]), (p1992[2][0], p1992[2][1])] )
     pol92 = pp92.area/1000000
-    print("pole obszaru wynosi (92): ", round(pol92, 12), '[km^2]')
     pol00 = (np.abs(p2000[3][0]  - p2000[0][0])*np.abs(p2000[0][1]  - p2000[3][1]))/ 1000000
-    print("pole obszaru wynosi (00): ", round(pol00, 12), '[km^2]')
     ppgko = shp.Polygon([(pgk0[0][0], pgk0[0][1]), (pgk0[1][0], pgk0[1][1]), (pgk0[3][0], pgk0[3][1]),
                          (pgk0[2][0],pgk0[2][1])])
     polgk = ppgko.area / 1000000
-    print("pole obszaru wynosi (gk0): ", round(polgk, 12), '[km^2]')
     ppgk2 = shp.Polygon([(pgk2[0][0], pgk2[0][1]), (pgk2[1][0], pgk2[1][1]), (pgk2[3][0], pgk2[3][1]),
                          (pgk2[2][0],pgk2[2][1])])
     polg2 = ppgk2.area / 1000000
-    print("pole obszaru wynosi (gk2): ", round(polg2, 12), '[km^2]')
-    print('GK:',*pgk2)
-    print('92:', *p1992)
-    print('00:', *p2000)
-
+    line1 = 'pole elip [km^2]' + '\t' + 'pole GK92 [km^2]' + '\t' + 'pole GK00 [km^2]\t' + 'pole 2000 [km^2]' + '\t' + 'pole 1992 [km^2]'
+    print(line1)
+    line2 = str(round(pol, 12)) + '\t' +str(round(polg2, 12))   + '\t' + str(round(polgk, 12)) + '\t' + str(round(pol00, 12))  +'\t' + str(round(pol92, 12))
+    print(line2)
+    print('--------------------------ELEMENTARNA SKALA DŁUGOŚCI I ZNIEKSZTAŁCENIA NA KM---------------------------')
+    line = 'pkt' + '\t' + 'mGK00' + '\t\t' + 'KGK00' + '\t' + 'mGK92\t\t' + 'KGK92' + '\t\t' + 'm00' + '\t\t' + 'K00' + '\t\t' + 'm92' + '\t\t' + 'K92'
+    print(line)
+    ke = 0
+    for i in punktyfi:
+        print(ke, *mk[ke])
+        ke+=1
+    print('--------------------------ELEMENTARNA SKALA DŁUGOŚCI I ZNIEKSZTAŁCENIA NA HA---------------------------')
+    line = 'pkt' + '\t' + 'mGK00^2' + '\t\t' + 'KGK00^2' + '\t' + 'mGK92^2\t\t' + 'KGK92^2' + '\t\t' + 'm00^2' + '\t\t' + 'K00^2' + '\t\t' + 'm92^2' + '\t\t' + 'K92^2'
+    print(line)
+    ke = 0
+    for i in punktyfi:
+        print(ke, *m2k2[ke])
+        ke+=1
 
 wywolywanie()
