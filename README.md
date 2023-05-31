@@ -1,4 +1,4 @@
-# Geodezja-Wy-sza-MariaMańk - semestr ziomwy 2021/2022 
+# Geodezja wyższa - lot samolotu
 
 Korzystając ze współrzędnych geodezyjnych rejestrowanych podczas lotu samolotu, program umożliwia przeliczenie ich na współrzędne ortokartezjańskie bądź współrzędne lokalne neu. A zatem określenie momentu w którym samolot znika za horyzątem.  W skrypcie jest także zaimplementowane wyliczenie odległości skośnej, azymutu i odległości zenitalnej samolotu w poszczególnych momentach lotu. Wszystko zapisywane jest do pliku txt NEUresult:
 
