@@ -12,5 +12,7 @@ Następnie otrzymane wyniki i trasa samolotu jest wizualizowana w układzie loka
 ![image](https://github.com/MariaMank/Wybrane_Zagadnienia_Geodezji_Wyzszej-Maria_M-zim.21-22/assets/92314221/a7a04999-ac01-4996-90c7-f86292c17171)
 
 dane samolotu - plik FlightAware.txt
+
 zaimplementowane funkcje - FlightAware.py
+
 sprawozdanie z opisem funkcji - Maria_Mańk projekt1.pdf
